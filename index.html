@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Iceman Coach Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Same family as Iceman QB Cards: field green, flag yellow, condensed display type. Laid out for a tablet on the sideline. */
+:root {
+  --bg: #ECEFE6; --surface: #FBFCF7; --ink: #16241A; --muted: #586A5C; --line: #CBD3C4;
+  --field: #1E5A33; --field-ink: #F4F8F1; --flag: #F2C230; --flag-ink: #241D00;
+  --miss: #A83A2C; --got: #1E7444; --chip: #E2E7DA; --turf: #DCE6D2; --yard: #B5C4AC;
+  --route: #16241A; --def: #A3302A; --zone: #2F6DA8;
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0D1811; --surface: #14241A; --ink: #E8EFE5; --muted: #98AD9C; --line: #2A3E30;
+    --field: #3B9E60; --field-ink: #06120A; --flag: #F2C94C; --flag-ink: #241D00;
+    --miss: #E46F5D; --got: #4CC27D; --chip: #1B2F22; --turf: #10261A; --yard: #2B4A35;
+    --route: #E8EFE5; --def: #F08A78; --zone: #6FA8E0; color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.45;
+  padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(16px, env(safe-area-inset-left, 0px));
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 18px 40px; display: flex; flex-direction: column; gap: 16px; }
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 16px; }
+header h1 { font-family: var(--display); font-weight: 800; font-size: 2.1rem; line-height: 1; margin: 0; text-transform: uppercase; }
+header p { margin: 6px 0 0; color: var(--muted); font-size: 0.95rem; }
+.gamepill { font-size: 0.9rem; color: var(--muted); }
+.gamepill b { color: var(--ink); }
+
+nav.tabs { display: flex; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 5px; position: sticky; top: 6px; z-index: 5; }
+nav.tabs button { flex: 1; font-family: var(--display); font-weight: 700; font-size: 1.05rem; letter-spacing: 0.06em; text-transform: uppercase; border: 0; border-radius: 8px; background: transparent; color: var(--muted); min-height: 46px; cursor: pointer; }
+nav.tabs button[aria-selected="true"] { background: var(--field); color: var(--field-ink); }
+
+h2 { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 1.15rem; margin: 0; }
+.label { font-family: var(--display); font-weight: 700; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 4px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.spacer { flex: 1; }
+.muted { color: var(--muted); }
+.small { font-size: 0.85rem; }
+
+input, select, textarea {
+  font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 9px 11px; min-height: 44px; width: 100%;
+}
+textarea { min-height: 84px; resize: vertical; }
+input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible { outline: 3px solid var(--flag); outline-offset: 1px; }
+
+.btn { font: inherit; font-weight: 700; font-size: 1rem; min-height: 46px; border-radius: 11px; cursor: pointer; border: 2px solid transparent; padding: 8px 16px; }
+.btn.primary { background: var(--field); color: var(--field-ink); }
+.btn.ghost { background: transparent; border-color: var(--line); color: var(--ink); }
+.btn.danger { background: transparent; border-color: var(--miss); color: var(--miss); }
+.btn.flag { background: var(--flag); color: var(--flag-ink); }
+.btn.sm { min-height: 38px; padding: 4px 12px; font-size: 0.92rem; }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.chip { font: inherit; font-size: 0.92rem; border: 1px solid var(--line); background: var(--chip); color: var(--ink); border-radius: 999px; padding: 6px 13px; cursor: pointer; min-height: 40px; }
+.chip[aria-pressed="true"] { background: var(--field); border-color: var(--field); color: var(--field-ink); }
+
+.filters { display: grid; grid-template-columns: 2fr repeat(5, 1fr); gap: 10px; align-items: end; }
+@media (max-width: 900px) { .filters { grid-template-columns: 1fr 1fr; } .filters .search { grid-column: 1 / -1; } }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; text-align: left; font: inherit; color: inherit; padding: 0; }
+.strip {
+  display: flex; align-items: center; gap: 8px; padding: 7px 12px; background: var(--field); color: var(--field-ink);
+  font-family: var(--display); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.9rem;
+  background-image: repeating-linear-gradient(90deg, transparent 0 22px, rgba(255,255,255,0.13) 22px 24px);
+}
+.strip.Defense { background-color: var(--def); }
+.strip.Special { background-color: var(--zone); }
+.strip .tag { background: var(--flag); color: var(--flag-ink); border-radius: 4px; padding: 0 7px; }
+.card .body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.card .name { font-family: var(--display); font-weight: 700; font-size: 1.45rem; line-height: 1.1; margin: 0; }
+.card .meta { color: var(--muted); font-size: 0.9rem; }
+.card .stat { color: var(--muted); font-size: 0.82rem; margin-top: auto; font-variant-numeric: tabular-nums; }
+.empty { color: var(--muted); text-align: center; padding: 30px 10px; }
+
+/* Field diagram: 100 x 64 units, line of scrimmage at y = 50, 1 yard = 1.8 units. */
+.dg { width: 100%; height: auto; display: block; border-radius: 10px; background: var(--turf); }
+.dg .yl { stroke: var(--yard); stroke-width: 0.25; }
+.dg .hash { stroke: var(--yard); stroke-width: 0.35; }
+.dg .los { stroke: var(--flag); stroke-width: 0.55; }
+.dg .ol { fill: var(--muted); }
+.dg .rc { fill: var(--surface); stroke: var(--ink); stroke-width: 0.45; }
+.dg .rt { fill: var(--ink); font: 700 2.2px var(--body); text-anchor: middle; dominant-baseline: central; }
+.dg .def { fill: var(--def); font: 800 3.1px var(--display); text-anchor: middle; dominant-baseline: central; }
+.dg .route { fill: none; stroke: var(--route); stroke-width: 0.6; stroke-linejoin: round; stroke-linecap: round; }
+.dg .droute { fill: none; stroke: var(--def); stroke-width: 0.45; stroke-dasharray: 1.2 0.8; stroke-linejoin: round; }
+.dg .ah { fill: var(--route); }
+.dg .ahd { fill: var(--def); }
+.dg .selring { fill: none; stroke: var(--flag); stroke-width: 0.8; }
+.dg .pt { fill: var(--flag); }
+
+.sheet { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.sit { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.sit .strip { justify-content: space-between; }
+.sit ol { list-style: none; margin: 0; padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+.call { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--chip); padding: 4px 6px 4px 12px; min-height: 52px; }
+.call .what { flex: 1; min-width: 0; cursor: pointer; background: none; border: 0; font: inherit; color: inherit; text-align: left; padding: 4px 0; }
+.call .what b { font-family: var(--display); font-size: 1.2rem; display: block; line-height: 1.1; }
+.call .what span { color: var(--muted); font-size: 0.82rem; }
+.call .n { font-family: var(--display); font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.iconbtn { font: inherit; font-weight: 700; min-width: 40px; min-height: 40px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.sit .add { margin: 0 6px 8px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--display); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-size: 0.82rem; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+@media (max-width: 860px) { .twocol { grid-template-columns: 1fr; } }
+
+dialog { border: 1px solid var(--line); border-radius: 16px; background: var(--bg); color: var(--ink); padding: 0; width: min(920px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); }
+dialog::backdrop { background: rgba(0,0,0,0.45); }
+.dlg { display: flex; flex-direction: column; gap: 14px; padding: 16px; }
+.dlg .top { display: flex; align-items: center; gap: 10px; }
+.dlg .top h2 { flex: 1; font-size: 1.4rem; }
+.form { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.assign { display: grid; grid-template-columns: 90px 1fr 44px; gap: 6px; align-items: center; }
+.tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tools input { width: 90px; }
+.editor .dg { touch-action: none; cursor: crosshair; }
+.hintline { font-size: 0.85rem; color: var(--muted); min-height: 1.3em; }
+.detail .dg { max-width: 640px; }
+.kv { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--muted); }
+.kv b { color: var(--ink); }
+.picklist { display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow: auto; }
+.picklist button { text-align: left; }
+footer { color: var(--muted); font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.toast { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-weight: 700; z-index: 50; }
+
+@media print {
+  body { background: #fff; color: #000; }
+  nav.tabs, footer, header .gamepill, .noprint, .iconbtn, .sit .add { display: none !important; }
+  .sheet { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .sit, .call { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Iceman Coach Playbook</h1>
+      <p>Build the playbook. Script the call sheet. Know what worked.</p>
+    </div>
+    <div class="gamepill" id="gamePill"></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" data-tab="playbook" aria-selected="true">Playbook</button>
+    <button role="tab" data-tab="sheet" aria-selected="false">Call sheet</button>
+    <button role="tab" data-tab="log" aria-selected="false">Game log</button>
+    <button role="tab" data-tab="backup" aria-selected="false">Backup</button>
+  </nav>
+
+  <!-- PLAYBOOK -->
+  <section id="tab-playbook" role="tabpanel">
+    <div class="row" style="margin-bottom:12px">
+      <h2 id="pbCount">Plays</h2><span class="spacer"></span>
+      <button class="btn primary" data-act="new-play">+ New play</button>
+    </div>
+    <div class="filters" style="margin-bottom:14px">
+      <label class="search"><span class="label">Search</span><input id="fQ" type="search" placeholder="Name, route, assignment, note"></label>
+      <label><span class="label">Side</span><select id="fSide"></select></label>
+      <label><span class="label">Play type</span><select id="fType"></select></label>
+      <label><span class="label">Formation</span><select id="fForm"></select></label>
+      <label><span class="label">Scheme</span><select id="fScheme"></select></label>
+      <label><span class="label">Position</span><select id="fPos"></select></label>
+    </div>
+    <div class="grid" id="playGrid"></div>
+    <div class="empty" id="playEmpty" hidden>No plays match. <button class="btn ghost sm" data-act="clear-filters">Clear filters</button></div>
+  </section>
+
+  <!-- CALL SHEET -->
+  <section id="tab-sheet" role="tabpanel" hidden>
+    <div class="row noprint" style="margin-bottom:12px">
+      <h2>Call sheet</h2><span class="spacer"></span>
+      <button class="btn ghost" id="editSheet" data-act="toggle-sheet-edit" aria-pressed="false">Edit sheet</button>
+      <button class="btn ghost" data-act="print">Print</button>
+    </div>
+    <p class="muted small noprint" id="sheetHint" style="margin:0 0 12px">Tap a play to log the call. Tap Edit sheet to add, move or remove plays.</p>
+    <div class="sheet" id="sheet"></div>
+    <div class="row noprint" id="sheetAddSit" hidden style="margin-top:12px">
+      <button class="btn ghost" data-act="add-sit">+ Add situation</button>
+    </div>
+  </section>
+
+  <!-- GAME LOG -->
+  <section id="tab-log" role="tabpanel" hidden>
+    <div class="panel" style="margin-bottom:14px">
+      <div class="row">
+        <label style="flex:1;min-width:200px"><span class="label">Game</span><select id="gameSel"></select></label>
+        <button class="btn ghost" data-act="new-game" style="align-self:end">+ New game</button>
+        <button class="btn ghost" data-act="edit-game" style="align-self:end">Rename</button>
+        <button class="btn danger" data-act="delete-game" style="align-self:end">Delete</button>
+      </div>
+      <div class="row">
+        <span class="label" style="margin:0">Review</span>
+        <button class="chip" data-scope="game" aria-pressed="true">This game</button>
+        <button class="chip" data-scope="all" aria-pressed="false">All games</button>
+      </div>
+    </div>
+    <div class="twocol">
+      <div class="panel">
+        <h2>What worked</h2>
+        <div id="byPlay"></div>
+      </div>
+      <div class="panel">
+        <h2>Calls, newest first</h2>
+        <div id="callList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BACKUP -->
+  <section id="tab-backup" role="tabpanel" hidden>
+    <div class="panel">
+      <h2>Keep your playbook safe</h2>
+      <p style="margin:0">Everything is saved in this browser on this device. Clearing the browser, or switching tablets, loses it. Export a backup file now and then, and import it on any device.</p>
+      <p class="muted" style="margin:0" id="lastExport"></p>
+      <div class="row">
+        <button class="btn primary" data-act="export">Export backup</button>
+        <button class="btn ghost" data-act="import">Import backup</button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+      </div>
+      <hr style="border:0;border-top:1px solid var(--line);width:100%">
+      <h2>Start over</h2>
+      <p class="muted" style="margin:0">Replaces everything here with the example plays. Export first if you want to keep your work.</p>
+      <div class="row"><button class="btn danger" data-act="reset">Reset to examples</button></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Sister app to Iceman QB Cards. Plays save on this device. Use Backup to move them.</span>
+    <span class="spacer"></span>
+    <!-- Feedback: set FEEDBACK_URL in the script to the shared AWS Lambda endpoint and this button turns on. -->
+    <button class="btn ghost sm" id="feedbackBtn" data-act="feedback" disabled title="Coming soon">Feedback (coming soon)</button>
+  </footer>
+</div>
+
+<dialog id="dlg"><div class="dlg" id="dlgBody"></div></dialog>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+"use strict";
+/* ---------- Settings ---------- */
+const STORE_KEY = "coachapp.v1";
+// Shared feedback API (AWS API Gateway + Lambda), used by this app and QB Cards. Empty = button shows "coming soon".
+const FEEDBACK_URL = "";
+const APP_ID = "iceman-coaching-app";
+
+const SIDES = ["Offense", "Defense", "Special teams"];
+const TYPES = {
+  "Offense": ["Run", "Pass", "Play-action", "RPO", "Screen", "Trick"],
+  "Defense": ["Coverage", "Blitz", "Front", "Stunt"],
+  "Special teams": ["Kickoff", "Kick return", "Punt", "Punt return", "Field goal", "PAT"]
+};
+const DEFAULT_SITS = ["Openers", "1st & 10", "2nd & short", "2nd & long", "3rd & short", "3rd & medium", "3rd & long", "Red zone", "Goal line", "2-minute", "Backed up", "Blitz beaters"];
+const RESULTS = ["Gain", "No gain", "Loss", "Incomplete", "First down", "TD", "Turnover", "Penalty", "Sack"];
+
+/* ---------- Helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+const today = () => new Date().toISOString().slice(0, 10);
+const yy = yd => 50 - yd * 1.8; // yards past the line of scrimmage -> diagram y
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const r1 = v => Math.round(v * 10) / 10;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2200); }
+
+/* ---------- Formations for the diagram editor (and the example plays) ---------- */
+const P = (l, x, y, t = "o", r = []) => ({ id: uid(), l, x, y, t, r });
+const FORMATIONS = {
+  "Spread 2x2": () => [P("X", 6, 51.2), P("H", 24, 52.6), P("Y", 76, 52.6), P("Z", 94, 51.2), P("QB", 50, 59), P("RB", 56, 59)],
+  "Trips Right": () => [P("X", 6, 51.2), P("H", 70, 52.6), P("Y", 82, 52.6), P("Z", 94, 51.2), P("QB", 50, 59), P("RB", 44, 59)],
+  "I-Form": () => [P("X", 6, 51.2), P("Y", 63, 51.6), P("Z", 90, 52.6), P("QB", 50, 53), P("FB", 50, 56.5), P("RB", 50, 60.5)],
+  "4-3 Base": () => [P("E", 37, 48.2, "d"), P("T", 45, 48.2, "d"), P("T", 55, 48.2, "d"), P("E", 63, 48.2, "d"),
+    P("W", 38, 41, "d"), P("M", 50, 41, "d"), P("S", 63, 41, "d"), P("C", 6, 37.4, "d"), P("C", 94, 37.4, "d"), P("FS", 38, 28.4, "d"), P("SS", 66, 28.4, "d")],
+  "Nickel 4-2-5": () => [P("E", 37, 48.2, "d"), P("T", 45, 48.2, "d"), P("T", 55, 48.2, "d"), P("E", 63, 48.2, "d"),
+    P("W", 44, 41, "d"), P("M", 56, 41, "d"), P("N", 26, 44, "d"), P("C", 6, 37.4, "d"), P("C", 94, 37.4, "d"), P("FS", 36, 28.4, "d"), P("SS", 64, 28.4, "d")]
+};
+
+/* ---------- Example plays ---------- */
+function withRoutes(form, routes) {
+  const ps = FORMATIONS[form]();
+  const used = {};
+  routes.forEach(([label, pts]) => {
+    const k = (used[label] = (used[label] || 0) + 1);
+    const p = ps.filter(q => q.l === label)[k - 1];
+    if (p) p.r = pts;
+  });
+  return { players: ps };
+}
+function examplePlays() {
+  const pl = (name, side, type, formation, scheme, assignments, notes, diagram) =>
+    ({ id: uid(), name, side, type, formation, scheme, assignments: assignments.map(([pos, job]) => ({ pos, job })), notes, diagram, updated: Date.now() });
+  return [
+    pl("Smash", "Offense", "Pass", "Spread 2x2", "Smash", [["X", "Hitch at 5-6"], ["H", "Corner at 10-12"], ["Y", "Corner at 10-12"], ["Z", "Hitch at 5-6"], ["RB", "Check release"], ["QB", "Read the corner: sits = corner, bails = hitch"]],
+      "Best vs Cover 2. Pick the side with the softer corner.",
+      withRoutes("Spread 2x2", [["X", [[6, 39.2], [8, 41]]], ["H", [[24, 35.6], [12, 26.6]]], ["Y", [[76, 35.6], [88, 26.6]]], ["Z", [[94, 39.2], [92, 41]]], ["RB", [[66, 56]]]])),
+    pl("Mesh", "Offense", "Pass", "Spread 2x2", "Mesh", [["H", "Shallow cross at 6"], ["Y", "Shallow cross at 5, under H"], ["X", "Go"], ["Z", "Dig at 12"], ["RB", "Flat right"], ["QB", "Man: crosser running away. Zone: crosser sitting in the hole"]],
+      "Best vs man and Cover 0. Crossers rub the defenders.",
+      withRoutes("Spread 2x2", [["H", [[30, 41], [80, 41]]], ["Y", [[70, 42], [20, 42]]], ["X", [[6, 8]]], ["Z", [[94, 28.4], [72, 28.4]]], ["RB", [[64, 55], [84, 53]]]])),
+    pl("Stick", "Offense", "Pass", "Trips Right", "Stick", [["Z", "Go"], ["Y", "Stick at 6: sit vs zone, turn out vs man"], ["H", "Flat"], ["X", "Backside slant"], ["RB", "Check left"], ["QB", "Read the flat defender"]],
+      "Quick game. Good on 3rd & short.",
+      withRoutes("Trips Right", [["Z", [[94, 8]]], ["Y", [[82, 39.2], [78, 39.2]]], ["H", [[74, 47.5], [92, 46.4]]], ["X", [[6, 44.6], [18, 37.4]]], ["RB", [[34, 56]]]])),
+    pl("Four Verticals", "Offense", "Pass", "Spread 2x2", "Verticals", [["X", "Go, outside release"], ["H", "Seam"], ["Y", "Seam"], ["Z", "Go, outside release"], ["RB", "Check down"], ["QB", "One-high: throw the seam away from the safety"]],
+      "Best vs Cover 3. Struggles vs Cover 4.",
+      withRoutes("Spread 2x2", [["X", [[6, 6]]], ["H", [[26, 6]]], ["Y", [[74, 6]]], ["Z", [[94, 6]]], ["RB", [[56, 47]]]])),
+    pl("Inside Zone", "Offense", "Run", "Spread 2x2", "Zone", [["OL", "Step playside, double the down linemen, climb to the backers"], ["RB", "Aim for the playside guard, one cut"], ["QB", "Hand off, carry out the fake"], ["X", "Stalk block the corner"], ["Z", "Stalk block the corner"]],
+      "Base run. RB reads the first down lineman past the center.",
+      withRoutes("Spread 2x2", [["RB", [[52, 55], [47, 46], [46, 38]]], ["X", [[6, 46]]], ["Z", [[94, 46]]]])),
+    pl("Power", "Offense", "Run", "I-Form", "Gap", [["OL", "Down block, backside guard pulls and leads through the hole"], ["FB", "Kick out the end man on the line"], ["RB", "Follow the pulling guard"], ["Y", "Down block"], ["QB", "Hand off"]],
+      "Short yardage and goal line.",
+      withRoutes("I-Form", [["FB", [[60, 52], [65, 49]]], ["RB", [[54, 57], [58, 48], [58, 38]]]])),
+    pl("Bubble Screen", "Offense", "Screen", "Trips Right", "Quick screen", [["H", "Bubble: belly back, catch moving downhill"], ["Y", "Block the inside defender"], ["Z", "Block the corner"], ["QB", "Catch and throw if the box is loaded"]],
+      "Pair with a run. Throw it when they leave 2 for 3 outside.",
+      withRoutes("Trips Right", [["H", [[74, 55], [84, 54]]], ["Y", [[82, 47]]], ["Z", [[94, 46]]]])),
+    pl("Cover 3 Sky", "Defense", "Coverage", "4-3 Base", "Cover 3", [["C", "Deep third, outside"], ["FS", "Deep middle third"], ["SS", "Rotate down to the flat (curl-flat)"], ["S", "Hook-curl"], ["M", "Middle hook"], ["W", "Curl-flat"]],
+      "Base coverage. Weak spots: seams and the flats.",
+      withRoutes("4-3 Base", [["C", [[12, 17.6]]], ["C", [[88, 17.6]]], ["FS", [[50, 17.6]]], ["SS", [[82, 37]]], ["W", [[22, 40]]]])),
+    pl("Cover 0 Blitz", "Defense", "Blitz", "4-3 Base", "Cover 0", [["W", "Blitz the A gap"], ["M", "Blitz the A gap"], ["C", "Press man on #1"], ["FS", "Man on #2 weak"], ["SS", "Man on #2 strong"], ["S", "Man on the RB"]],
+      "All-out pressure. No safety help.",
+      withRoutes("4-3 Base", [["W", [[46, 50.8]]], ["M", [[53, 50.8]]], ["FS", [[26, 44]]], ["SS", [[74, 44]]]]))
+  ];
+}
+function freshDB() {
+  const plays = examplePlays();
+  const byName = n => (plays.find(p => p.name === n) || {}).id;
+  const sheet = DEFAULT_SITS.map(name => ({ id: uid(), name, plays: [] }));
+  const put = (sit, names) => { const s = sheet.find(x => x.name === sit); names.forEach(n => byName(n) && s.plays.push(byName(n))); };
+  put("Openers", ["Inside Zone", "Bubble Screen", "Smash"]);
+  put("3rd & short", ["Stick", "Power"]);
+  put("3rd & long", ["Four Verticals", "Mesh"]);
+  put("Blitz beaters", ["Mesh", "Bubble Screen"]);
+  return { version: 1, plays, sheet, games: [], currentGame: null, lastExport: null };
+}
+
+/* ---------- Storage ---------- */
+function loadDB() {
+  try { const raw = localStorage.getItem(STORE_KEY); if (raw) { const d = JSON.parse(raw); if (validDB(d)) return d; } } catch (e) {}
+  return freshDB();
+}
+function validDB(d) { return d && Array.isArray(d.plays) && Array.isArray(d.sheet) && Array.isArray(d.games); }
+let db = loadDB();
+function persist() { try { localStorage.setItem(STORE_KEY, JSON.stringify(db)); } catch (e) { toast("Couldn't save. Export a backup."); } }
+persist();
+
+const playById = id => db.plays.find(p => p.id === id);
+const currentGame = () => db.games.find(g => g.id === db.currentGame) || null;
+
+/* ---------- Diagram ---------- */
+let svgN = 0;
+function drawDiagram(d, opt = {}) {
+  const id = "g" + (++svgN);
+  const out = [`<svg class="dg" viewBox="0 0 100 64" role="img" aria-label="${esc(opt.label || "Play diagram")}" ${opt.svgId ? `id="${opt.svgId}"` : ""}>`];
+  out.push(`<defs><marker id="${id}a" viewBox="0 0 6 6" refX="4.5" refY="3" markerWidth="3.6" markerHeight="3.6" orient="auto-start-reverse"><path class="ah" d="M0,0 L6,3 L0,6 z"/></marker>`);
+  out.push(`<marker id="${id}b" viewBox="0 0 6 6" refX="4.5" refY="3" markerWidth="3.6" markerHeight="3.6" orient="auto-start-reverse"><path class="ahd" d="M0,0 L6,3 L0,6 z"/></marker></defs>`);
+  for (let yd = 5; yd <= 25; yd += 5) out.push(`<line class="yl" x1="0" x2="100" y1="${yy(yd)}" y2="${yy(yd)}"/>`);
+  for (let yd = 1; yd <= 25; yd++) if (yd % 5) out.push(`<line class="hash" x1="38" x2="39.5" y1="${yy(yd)}" y2="${yy(yd)}"/><line class="hash" x1="60.5" x2="62" y1="${yy(yd)}" y2="${yy(yd)}"/>`);
+  out.push(`<line class="los" x1="0" x2="100" y1="50" y2="50"/>`);
+  [42, 46, 50, 54, 58].forEach(x => out.push(`<rect class="ol" x="${x - 1.3}" y="50.4" width="2.6" height="2" rx="0.5"/>`));
+  const players = (d && d.players) || [];
+  players.forEach(p => {
+    if (!p.r || !p.r.length) return;
+    const path = "M" + [[p.x, p.y], ...p.r].map(([x, y]) => `${x},${y}`).join(" L");
+    out.push(`<path class="${p.t === "d" ? "droute" : "route"}" d="${path}" marker-end="url(#${id}${p.t === "d" ? "b" : "a"})"/>`);
+    if (opt.sel === p.id) p.r.forEach(([x, y]) => out.push(`<circle class="pt" cx="${x}" cy="${y}" r="0.6"/>`));
+  });
+  players.forEach(p => {
+    if (opt.sel === p.id) out.push(`<circle class="selring" cx="${p.x}" cy="${p.y}" r="3.2"/>`);
+    if (p.t === "d") out.push(`<text class="def" x="${p.x}" y="${p.y}">${esc(p.l)}</text>`);
+    else out.push(`<circle class="rc" cx="${p.x}" cy="${p.y}" r="2.2"/><text class="rt" x="${p.x}" y="${p.y + 0.1}">${esc(p.l)}</text>`);
+  });
+  out.push("</svg>");
+  return out.join("");
+}
+const hasDiagram = p => p.diagram && p.diagram.players && p.diagram.players.length;
+
+/* ---------- Stats ---------- */
+function callsIn(scope) { return scope === "all" ? db.games.flatMap(g => g.calls) : ((currentGame() || {}).calls || []); }
+function statsFor(playId, calls) {
+  const c = calls.filter(x => x.playId === playId);
+  const withYds = c.filter(x => x.yds !== null && x.yds !== "" && !isNaN(x.yds));
+  const yds = withYds.reduce((a, x) => a + Number(x.yds), 0);
+  return { n: c.length, yds, avg: withYds.length ? yds / withYds.length : null, td: c.filter(x => x.result === "TD").length, to: c.filter(x => x.result === "Turnover").length };
+}
+const fmtAvg = a => a === null ? "–" : (Math.round(a * 10) / 10).toFixed(1);
+
+/* ---------- Tabs ---------- */
+let tab = "playbook";
+function showTab(t) {
+  tab = t;
+  document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t));
+  ["playbook", "sheet", "log", "backup"].forEach(k => $("tab-" + k).hidden = k !== t);
+  render();
+}
+
+/* ---------- Playbook ---------- */
+const filt = { q: "", side: "", type: "", form: "", scheme: "", pos: "" };
+const uniq = arr => [...new Set(arr.filter(Boolean))].sort((a, b) => a.localeCompare(b));
+function fillSelect(sel, values, current, allLabel) {
+  sel.innerHTML = `<option value="">${allLabel}</option>` + values.map(v => `<option${v === current ? " selected" : ""}>${esc(v)}</option>`).join("");
+}
+function renderFilters() {
+  fillSelect($("fSide"), SIDES, filt.side, "All sides");
+  fillSelect($("fType"), uniq([...Object.values(TYPES).flat(), ...db.plays.map(p => p.type)]), filt.type, "All types");
+  fillSelect($("fForm"), uniq(db.plays.map(p => p.formation)), filt.form, "All formations");
+  fillSelect($("fScheme"), uniq(db.plays.map(p => p.scheme)), filt.scheme, "All schemes");
+  fillSelect($("fPos"), uniq(db.plays.flatMap(p => p.assignments.map(a => a.pos))), filt.pos, "All positions");
+}
+function matches(p) {
+  if (filt.side && p.side !== filt.side) return false;
+  if (filt.type && p.type !== filt.type) return false;
+  if (filt.form && p.formation !== filt.form) return false;
+  if (filt.scheme && p.scheme !== filt.scheme) return false;
+  if (filt.pos && !p.assignments.some(a => a.pos === filt.pos)) return false;
+  if (filt.q) {
+    const hay = [p.name, p.side, p.type, p.formation, p.scheme, p.notes, ...p.assignments.flatMap(a => [a.pos, a.job])].join(" ").toLowerCase();
+    if (!filt.q.toLowerCase().split(/\s+/).every(w => hay.includes(w))) return false;
+  }
+  return true;
+}
+const sideClass = s => s === "Defense" ? "Defense" : s === "Special teams" ? "Special" : "";
+function renderPlaybook() {
+  renderFilters();
+  const all = callsIn("all");
+  const list = db.plays.filter(matches).sort((a, b) => a.name.localeCompare(b.name));
+  $("pbCount").textContent = `Plays (${list.length}${list.length !== db.plays.length ? " of " + db.plays.length : ""})`;
+  $("playEmpty").hidden = list.length > 0;
+  $("playGrid").innerHTML = list.map(p => {
+    const s = statsFor(p.id, all);
+    return `<button class="card" data-act="open-play" data-id="${p.id}">
+      <div class="strip ${sideClass(p.side)}"><span class="tag">${esc(p.type || p.side)}</span><span>${esc(p.side)}</span></div>
+      <div class="body">
+        <p class="name">${esc(p.name)}</p>
+        <div class="meta">${esc([p.formation, p.scheme].filter(Boolean).join(" · ") || "No formation yet")}</div>
+        ${hasDiagram(p) ? drawDiagram(p.diagram, { label: p.name + " diagram" }) : ""}
+        <div class="stat">${s.n ? `Called ${s.n}× · ${fmtAvg(s.avg)} yds avg` : "Not called yet"}</div>
+      </div></button>`;
+  }).join("");
+}
+
+/* ---------- Dialog plumbing ---------- */
+const dlg = $("dlg");
+function openDlg(html, onReady) { $("dlgBody").innerHTML = html; if (!dlg.open) dlg.showModal(); if (onReady) onReady(); }
+function closeDlg() { dlg.close(); ed = null; }
+dlg.addEventListener("close", () => { ed = null; });
+
+/* ---------- Play detail ---------- */
+function openPlay(id) {
+  const p = playById(id); if (!p) return;
+  const s = statsFor(p.id, callsIn("all"));
+  openDlg(`<div class="top"><h2>${esc(p.name)}</h2><button class="iconbtn" data-act="close" aria-label="Close">✕</button></div>
+    <div class="detail" style="display:flex;flex-direction:column;gap:12px">
+      <div class="kv"><span>Side <b>${esc(p.side)}</b></span><span>Type <b>${esc(p.type || "–")}</b></span><span>Formation <b>${esc(p.formation || "–")}</b></span><span>Scheme <b>${esc(p.scheme || "–")}</b></span></div>
+      ${hasDiagram(p) ? drawDiagram(p.diagram, { label: p.name + " diagram" }) : ""}
+      ${p.assignments.length ? `<table><thead><tr><th>Position</th><th>Assignment</th></tr></thead><tbody>${p.assignments.map(a => `<tr><td><b>${esc(a.pos)}</b></td><td>${esc(a.job)}</td></tr>`).join("")}</tbody></table>` : ""}
+      ${p.notes ? `<div><span class="label">Coaching notes</span><div style="white-space:pre-wrap">${esc(p.notes)}</div></div>` : ""}
+      <div class="muted small">${s.n ? `Called ${s.n}× in all games · ${s.yds} yds · ${fmtAvg(s.avg)} avg · ${s.td} TD · ${s.to} turnovers` : "Not called in a game yet."}</div>
+      <div class="row">
+        <button class="btn primary" data-act="edit-play" data-id="${p.id}">Edit</button>
+        <button class="btn flag" data-act="log-call" data-id="${p.id}">Log a call</button>
+        <button class="btn ghost" data-act="to-sheet" data-id="${p.id}">Add to call sheet</button>
+        <button class="btn ghost" data-act="dup-play" data-id="${p.id}">Duplicate</button>
+        <span class="spacer"></span>
+        <button class="btn danger" data-act="del-play" data-id="${p.id}">Delete</button>
+      </div>
+    </div>`);
+}
+
+/* ---------- Play editor ---------- */
+let ed = null; // { play, tool, label, sel, undo[] }
+const clone = o => JSON.parse(JSON.stringify(o));
+function openEditor(play) {
+  const isNew = !play;
+  const p = play ? clone(play) : { id: uid(), name: "", side: "Offense", type: "Pass", formation: "", scheme: "", assignments: [], notes: "", diagram: { players: [] } };
+  if (!p.diagram) p.diagram = { players: [] };
+  ed = { p, isNew, tool: "o", label: "X", sel: null, undo: [] };
+  const lists = `<datalist id="dlTypes">${uniq([...Object.values(TYPES).flat(), ...db.plays.map(x => x.type)]).map(v => `<option value="${esc(v)}">`).join("")}</datalist>
+    <datalist id="dlForms">${uniq([...Object.keys(FORMATIONS), ...db.plays.map(x => x.formation)]).map(v => `<option value="${esc(v)}">`).join("")}</datalist>
+    <datalist id="dlSchemes">${uniq(db.plays.map(x => x.scheme)).map(v => `<option value="${esc(v)}">`).join("")}</datalist>`;
+  openDlg(`<div class="top"><h2>${isNew ? "New play" : "Edit play"}</h2><button class="iconbtn" data-act="close" aria-label="Close">✕</button></div>
+    ${lists}
+    <div class="form">
+      <label><span class="label">Play name</span><input id="eName" value="${esc(p.name)}" required></label>
+      <label><span class="label">Side of ball</span><select id="eSide">${SIDES.map(s => `<option${s === p.side ? " selected" : ""}>${s}</option>`).join("")}</select></label>
+      <label><span class="label">Play type</span><input id="eType" list="dlTypes" value="${esc(p.type)}"></label>
+      <label><span class="label">Formation</span><input id="eForm" list="dlForms" value="${esc(p.formation)}"></label>
+      <label><span class="label">Scheme / concept</span><input id="eScheme" list="dlSchemes" value="${esc(p.scheme)}"></label>
+    </div>
+    <div class="editor panel">
+      <div class="row"><h2>Diagram</h2><span class="muted small">(optional)</span></div>
+      <div class="tools">
+        <span class="label" style="margin:0">Start from</span>
+        ${Object.keys(FORMATIONS).map(f => `<button class="chip" data-act="ed-form" data-f="${esc(f)}">${esc(f)}</button>`).join("")}
+      </div>
+      <div class="tools">
+        <span class="label" style="margin:0">Tap to</span>
+        <button class="chip" data-tool="o">Add offense</button>
+        <button class="chip" data-tool="d">Add defense</button>
+        <button class="chip" data-tool="route">Draw route</button>
+        <button class="chip" data-tool="move">Move</button>
+        <button class="chip" data-tool="erase">Erase</button>
+        <label class="row" style="gap:6px"><span class="label" style="margin:0">Label</span><input id="eLabel" maxlength="3" value="X"></label>
+      </div>
+      <div id="edSvg"></div>
+      <div class="hintline" id="edHint"></div>
+      <div class="tools">
+        <button class="btn ghost sm" data-act="ed-undo">Undo</button>
+        <button class="btn ghost sm" data-act="ed-clear-route">Clear route</button>
+        <button class="btn ghost sm" data-act="ed-clear">Clear diagram</button>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="row"><h2>Assignments</h2><span class="spacer"></span><button class="btn ghost sm" data-act="ed-fill">Fill from diagram</button><button class="btn ghost sm" data-act="ed-add-row">+ Row</button></div>
+      <div id="eAssign" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+    <label><span class="label">Coaching notes</span><textarea id="eNotes">${esc(p.notes)}</textarea></label>
+    <div class="row"><button class="btn primary" data-act="ed-save">Save play</button><button class="btn ghost" data-act="close">Cancel</button></div>`,
+  () => { renderAssign(); renderEd(); $("eName").focus(); });
+}
+function readAssign() {
+  if (!ed) return;
+  ed.p.assignments = [...document.querySelectorAll("#eAssign .assign")].map(r => ({ pos: r.querySelector(".ap").value.trim(), job: r.querySelector(".aj").value.trim() }));
+}
+function renderAssign() {
+  $("eAssign").innerHTML = ed.p.assignments.map((a, i) => `<div class="assign">
+    <input class="ap" placeholder="Pos" value="${esc(a.pos)}" aria-label="Position">
+    <input class="aj" placeholder="Assignment" value="${esc(a.job)}" aria-label="Assignment">
+    <button class="iconbtn" data-act="ed-del-row" data-i="${i}" aria-label="Remove row">✕</button></div>`).join("") || `<div class="muted small">No assignments yet. Add rows, or fill them from the diagram.</div>`;
+}
+const TOOL_HINT = {
+  o: "Tap the field to add an offensive player with the label above. Tap a player to select it.",
+  d: "Tap the field to add a defender with the label above.",
+  route: "Tap a player, then tap where the route goes. Tap the player again to finish.",
+  move: "Drag a player. Its route moves with it.",
+  erase: "Tap a player to remove it and its route."
+};
+function renderEd(msg) {
+  $("edSvg").innerHTML = drawDiagram(ed.p.diagram, { sel: ed.sel, svgId: "edField", label: "Diagram editor" });
+  document.querySelectorAll("[data-tool]").forEach(b => b.setAttribute("aria-pressed", b.dataset.tool === ed.tool));
+  $("edHint").textContent = msg || TOOL_HINT[ed.tool];
+  const svg = $("edField");
+  svg.addEventListener("pointerdown", edDown);
+  svg.addEventListener("pointermove", edMove);
+  svg.addEventListener("pointerup", edUp);
+  svg.addEventListener("pointercancel", edUp);
+}
+function snap() { ed.undo.push(clone(ed.p.diagram)); if (ed.undo.length > 60) ed.undo.shift(); }
+function svgPoint(e) {
+  const svg = $("edField"), pt = svg.createSVGPoint();
+  pt.x = e.clientX; pt.y = e.clientY;
+  const q = pt.matrixTransform(svg.getScreenCTM().inverse());
+  return [r1(clamp(q.x, 1, 99)), r1(clamp(q.y, 1, 63))];
+}
+function hitPlayer([x, y]) {
+  let best = null, bd = 3.4;
+  ed.p.diagram.players.forEach(p => { const dd = Math.hypot(p.x - x, p.y - y); if (dd < bd) { bd = dd; best = p; } });
+  return best;
+}
+let drag = null;
+function edDown(e) {
+  e.preventDefault();
+  const pt = svgPoint(e), hit = hitPlayer(pt), pl = ed.p.diagram.players;
+  if (ed.tool === "o" || ed.tool === "d") {
+    if (hit) { ed.sel = hit.id; $("eLabel").value = hit.l; ed.label = hit.l; return renderEd(`Selected ${hit.l}. Change the label to rename it, or pick Draw route.`); }
+    snap();
+    const p = P(ed.label || (ed.tool === "d" ? "D" : "O"), pt[0], pt[1], ed.tool);
+    pl.push(p); ed.sel = p.id;
+    return renderEd();
+  }
+  if (ed.tool === "route") {
+    if (hit && hit.id === ed.sel) { ed.sel = null; return renderEd("Route finished. Tap another player to draw the next one."); }
+    if (hit) { ed.sel = hit.id; return renderEd(`Drawing ${hit.l}'s route. Tap points on the field, then tap ${hit.l} again to finish.`); }
+    const s = pl.find(p => p.id === ed.sel);
+    if (!s) return renderEd("Tap a player first.");
+    snap(); s.r.push(pt); return renderEd(`Drawing ${s.l}'s route. Tap ${s.l} again to finish.`);
+  }
+  if (ed.tool === "move") {
+    if (!hit) return;
+    snap(); ed.sel = hit.id;
+    drag = { p: hit, ox: pt[0] - hit.x, oy: pt[1] - hit.y };
+    $("edField").setPointerCapture(e.pointerId);
+    return;
+  }
+  if (ed.tool === "erase") {
+    if (!hit) return;
+    snap(); ed.p.diagram.players = pl.filter(p => p !== hit); if (ed.sel === hit.id) ed.sel = null;
+    return renderEd(`Removed ${hit.l}.`);
+  }
+}
+function edMove(e) {
+  if (!drag) return;
+  const [x, y] = svgPoint(e), p = drag.p;
+  const nx = r1(clamp(x - drag.ox, 2, 98)), ny = r1(clamp(y - drag.oy, 2, 62)), dx = nx - p.x, dy = ny - p.y;
+  p.x = nx; p.y = ny; p.r = p.r.map(([a, b]) => [r1(clamp(a + dx, 1, 99)), r1(clamp(b + dy, 1, 63))]);
+  const svg = $("edField");
+  // Redraw in place without losing pointer capture.
+  const tmp = document.createElement("div"); tmp.innerHTML = drawDiagram(ed.p.diagram, { sel: ed.sel });
+  svg.innerHTML = tmp.firstChild.innerHTML;
+}
+function edUp() { if (drag) { drag = null; renderEd(); } }
+
+function saveEditor() {
+  readAssign();
+  const p = ed.p;
+  p.name = $("eName").value.trim(); p.side = $("eSide").value; p.type = $("eType").value.trim();
+  p.formation = $("eForm").value.trim(); p.scheme = $("eScheme").value.trim(); p.notes = $("eNotes").value.trim();
+  p.assignments = p.assignments.filter(a => a.pos || a.job);
+  if (!p.name) { $("eName").focus(); return toast("Give the play a name."); }
+  p.updated = Date.now();
+  const i = db.plays.findIndex(x => x.id === p.id);
+  if (i >= 0) db.plays[i] = p; else db.plays.push(p);
+  persist(); closeDlg(); render(); toast(`Saved ${p.name}`);
+}
+
+/* ---------- Call sheet ---------- */
+let sheetEdit = false;
+function renderSheet() {
+  $("editSheet").setAttribute("aria-pressed", sheetEdit);
+  $("editSheet").textContent = sheetEdit ? "Done editing" : "Edit sheet";
+  $("sheetAddSit").hidden = !sheetEdit;
+  $("sheetHint").textContent = sheetEdit ? "Use the arrows to reorder. Rename or remove a situation from its header." : "Tap a play to log the call. Tap Edit sheet to add, move or remove plays.";
+  const calls = callsIn("game");
+  $("sheet").innerHTML = db.sheet.map((s, si) => `<div class="sit">
+    <div class="strip"><span>${esc(s.name)}</span>${sheetEdit ? `<span class="row" style="gap:4px">
+      <button class="iconbtn" data-act="sit-up" data-si="${si}" aria-label="Move situation up">↑</button>
+      <button class="iconbtn" data-act="sit-rename" data-si="${si}" aria-label="Rename situation">✎</button>
+      <button class="iconbtn" data-act="sit-del" data-si="${si}" aria-label="Remove situation">✕</button></span>` : `<span>${s.plays.length}</span>`}</div>
+    <ol>${s.plays.map((pid, pi) => {
+      const p = playById(pid); if (!p) return "";
+      const st = statsFor(pid, calls);
+      return `<li class="call">
+        <button class="what" data-act="${sheetEdit ? "open-play" : "log-call"}" data-id="${pid}" data-sit="${esc(s.name)}"><b>${esc(p.name)}</b><span>${esc([p.formation, p.type].filter(Boolean).join(" · "))}</span></button>
+        ${sheetEdit ? `<button class="iconbtn" data-act="sp-up" data-si="${si}" data-pi="${pi}" aria-label="Move up">↑</button>
+        <button class="iconbtn" data-act="sp-down" data-si="${si}" data-pi="${pi}" aria-label="Move down">↓</button>
+        <button class="iconbtn" data-act="sp-del" data-si="${si}" data-pi="${pi}" aria-label="Remove from sheet">✕</button>`
+        : (st.n ? `<span class="n" title="Called this game">${st.n}×</span>` : "")}
+      </li>`;
+    }).join("") || `<li class="muted small" style="padding:6px">No plays yet.</li>`}</ol>
+    ${sheetEdit ? `<button class="btn ghost sm add" data-act="sit-add-play" data-si="${si}">+ Add play</button>` : ""}
+  </div>`).join("");
+}
+function pickPlayFor(si) {
+  const s = db.sheet[si];
+  const list = [...db.plays].sort((a, b) => a.name.localeCompare(b.name));
+  openDlg(`<div class="top"><h2>Add to ${esc(s.name)}</h2><button class="iconbtn" data-act="close" aria-label="Close">✕</button></div>
+    <input id="pickQ" type="search" placeholder="Search plays">
+    <div class="picklist" id="pickList">${list.map(p => `<button class="btn ghost" data-act="pick" data-si="${si}" data-id="${p.id}" data-hay="${esc([p.name, p.formation, p.scheme, p.type].join(" ").toLowerCase())}">${esc(p.name)} <span class="muted small">${esc([p.formation, p.type].filter(Boolean).join(" · "))}</span></button>`).join("")}</div>`,
+  () => { $("pickQ").focus(); $("pickQ").oninput = e => { const q = e.target.value.toLowerCase(); document.querySelectorAll("#pickList button").forEach(b => b.hidden = !b.dataset.hay.includes(q)); }; });
+}
+function chooseSitFor(pid) {
+  openDlg(`<div class="top"><h2>Add ${esc(playById(pid).name)} to…</h2><button class="iconbtn" data-act="close" aria-label="Close">✕</button></div>
+    <div class="picklist">${db.sheet.map((s, si) => `<button class="btn ghost" data-act="pick" data-si="${si}" data-id="${pid}">${esc(s.name)}${s.plays.includes(pid) ? ' <span class="muted small">(already there)</span>' : ""}</button>`).join("")}</div>`);
+}
+function move(arr, i, d) { const j = i + d; if (j < 0 || j >= arr.length) return; [arr[i], arr[j]] = [arr[j], arr[i]]; }
+
+/* ---------- Logging calls ---------- */
+function ensureGame() {
+  let g = currentGame();
+  if (!g) { g = { id: uid(), opp: "", date: today(), calls: [] }; db.games.push(g); db.currentGame = g.id; }
+  return g;
+}
+const gameName = g => g ? `${g.opp ? "vs " + g.opp : "Game"} · ${g.date}` : "No game yet";
+function openLog(pid, sit) {
+  const p = playById(pid); if (!p) return;
+  const g = currentGame();
+  const lc = { down: "", dist: "", result: "", yds: "" };
+  openDlg(`<div class="top"><h2>Call: ${esc(p.name)}</h2><button class="iconbtn" data-act="close" aria-label="Close">✕</button></div>
+    <div class="muted small">${esc(sit ? sit + " · " : "")}${esc(gameName(g))}${g ? "" : " (a new game starts when you save)"}</div>
+    <div><span class="label">Down</span><div class="row" id="lDown">${[1, 2, 3, 4].map(d => `<button class="chip" data-down="${d}" aria-pressed="false">${d}</button>`).join("")}</div></div>
+    <div class="form">
+      <label><span class="label">Distance (yds)</span><input id="lDist" type="number" inputmode="numeric" min="0" max="99"></label>
+      <label><span class="label">Yards gained (minus for a loss)</span><input id="lYds" type="number" inputmode="numeric" min="-99" max="99"></label>
+    </div>
+    <div><span class="label">Result</span><div class="row" id="lRes">${RESULTS.map(r => `<button class="chip" data-res="${r}" aria-pressed="false">${r}</button>`).join("")}</div></div>
+    <label><span class="label">Note (optional)</span><input id="lNote" placeholder="What did the defense show?"></label>
+    <div class="row"><button class="btn primary" data-act="log-save" data-id="${pid}" data-sit="${esc(sit || "")}">Save call</button><button class="btn ghost" data-act="close">Cancel</button></div>`,
+  () => {
+    $("lDown").onclick = e => { const b = e.target.closest("[data-down]"); if (!b) return; lc.down = lc.down === b.dataset.down ? "" : b.dataset.down; $("lDown").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.down === lc.down)); };
+    $("lRes").onclick = e => { const b = e.target.closest("[data-res]"); if (!b) return; lc.result = lc.result === b.dataset.res ? "" : b.dataset.res; $("lRes").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.res === lc.result)); if (["Incomplete", "No gain"].includes(lc.result) && $("lYds").value === "") $("lYds").value = 0; };
+    openLog.state = lc;
+  });
+}
+function saveLog(pid, sit) {
+  const lc = openLog.state || {}, p = playById(pid), g = ensureGame();
+  const ydsRaw = $("lYds").value.trim();
+  g.calls.push({ id: uid(), playId: pid, playName: p ? p.name : "", sit: sit || "", down: lc.down || "", dist: $("lDist").value.trim(), result: lc.result || "", yds: ydsRaw === "" ? null : Number(ydsRaw), note: $("lNote").value.trim(), t: Date.now() });
+  persist(); closeDlg(); render(); toast(`Logged ${p ? p.name : "call"}`);
+}
+
+/* ---------- Game log ---------- */
+let logScope = "game";
+function renderLog() {
+  $("gameSel").innerHTML = db.games.length ? [...db.games].sort((a, b) => b.date.localeCompare(a.date)).map(g => `<option value="${g.id}"${g.id === db.currentGame ? " selected" : ""}>${esc(gameName(g))} (${g.calls.length})</option>`).join("") : `<option value="">No games yet</option>`;
+  document.querySelectorAll("[data-scope]").forEach(b => b.setAttribute("aria-pressed", b.dataset.scope === logScope));
+  const calls = callsIn(logScope);
+  const ids = uniq(calls.map(c => c.playId));
+  const rows = ids.map(id => ({ id, name: (playById(id) || {}).name || (calls.find(c => c.playId === id) || {}).playName || "Deleted play", ...statsFor(id, calls) }))
+    .sort((a, b) => b.n - a.n || (b.avg ?? -99) - (a.avg ?? -99));
+  $("byPlay").innerHTML = rows.length ? `<table><thead><tr><th>Play</th><th class="num">Calls</th><th class="num">Yds</th><th class="num">Avg</th><th class="num">TD</th><th class="num">TO</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td><b>${esc(r.name)}</b></td><td class="num">${r.n}</td><td class="num">${r.yds}</td><td class="num">${fmtAvg(r.avg)}</td><td class="num">${r.td}</td><td class="num">${r.to}</td></tr>`).join("")}</tbody></table>`
+    : `<div class="muted">No calls logged yet. Log calls from the call sheet or a play.</div>`;
+  const shown = [...calls].sort((a, b) => b.t - a.t);
+  $("callList").innerHTML = shown.length ? `<table><tbody>${shown.map(c => {
+    const name = (playById(c.playId) || {}).name || c.playName || "Deleted play";
+    const dd = c.down ? `${c.down}${["", "st", "nd", "rd", "th"][c.down]}${c.dist !== "" ? " & " + c.dist : ""}` : "";
+    return `<tr><td><b>${esc(name)}</b><div class="muted small">${esc([dd, c.sit, c.note].filter(Boolean).join(" · "))}</div></td>
+      <td>${esc(c.result)}${c.yds !== null ? `<div class="muted small">${c.yds > 0 ? "+" : ""}${c.yds} yds</div>` : ""}</td>
+      <td class="num">${logScope === "game" ? `<button class="iconbtn" data-act="del-call" data-id="${c.id}" aria-label="Delete call">✕</button>` : ""}</td></tr>`;
+  }).join("")}</tbody></table>` : `<div class="muted">Nothing here yet.</div>`;
+}
+function editGame(g) {
+  openDlg(`<div class="top"><h2>${g ? "Rename game" : "New game"}</h2><button class="iconbtn" data-act="close" aria-label="Close">✕</button></div>
+    <div class="form"><label><span class="label">Opponent</span><input id="gOpp" value="${esc(g ? g.opp : "")}" placeholder="Opponent or Practice"></label>
+    <label><span class="label">Date</span><input id="gDate" type="date" value="${esc(g ? g.date : today())}"></label></div>
+    <div class="row"><button class="btn primary" data-act="game-save" data-id="${g ? g.id : ""}">Save</button><button class="btn ghost" data-act="close">Cancel</button></div>`,
+  () => $("gOpp").focus());
+}
+
+/* ---------- Backup ---------- */
+function exportBackup() {
+  db.lastExport = Date.now(); persist();
+  const blob = new Blob([JSON.stringify({ app: APP_ID, exported: new Date().toISOString(), ...db }, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = `coach-playbook-${today()}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  render(); toast("Backup downloaded");
+}
+function importBackup(file) {
+  const fr = new FileReader();
+  fr.onload = () => {
+    let d; try { d = JSON.parse(fr.result); } catch (e) { return toast("That file isn't a backup."); }
+    if (!validDB(d)) return toast("That file isn't a playbook backup.");
+    if (!confirm(`Replace everything here with this backup? It has ${d.plays.length} plays and ${d.games.length} games.`)) return;
+    db = { version: 1, plays: d.plays, sheet: d.sheet, games: d.games, currentGame: d.currentGame || null, lastExport: d.lastExport || null };
+    db.plays.forEach(p => { p.assignments = Array.isArray(p.assignments) ? p.assignments : []; if (!p.diagram) p.diagram = { players: [] }; });
+    persist(); render(); toast("Backup loaded");
+  };
+  fr.readAsText(file);
+}
+
+/* ---------- Feedback (turns on when FEEDBACK_URL is set) ---------- */
+function setupFeedback() {
+  const b = $("feedbackBtn");
+  if (FEEDBACK_URL) { b.disabled = false; b.textContent = "Send feedback"; b.title = ""; }
+}
+function openFeedback() {
+  openDlg(`<div class="top"><h2>Send feedback</h2><button class="iconbtn" data-act="close" aria-label="Close">✕</button></div>
+    <label><span class="label">What's working, what isn't, what you want next</span><textarea id="fbText" maxlength="2000"></textarea></label>
+    <div class="row"><button class="btn primary" data-act="fb-send">Send</button><button class="btn ghost" data-act="close">Cancel</button></div>`, () => $("fbText").focus());
+}
+async function sendFeedback() {
+  const msg = $("fbText").value.trim(); if (!msg) return toast("Write a note first.");
+  try {
+    const r = await fetch(FEEDBACK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ app: APP_ID, message: msg, screen: tab, sent: new Date().toISOString() }) });
+    if (!r.ok) throw new Error(r.status);
+    closeDlg(); toast("Thanks. Feedback sent.");
+  } catch (e) { toast("Couldn't send. Try again later."); }
+}
+
+/* ---------- Render ---------- */
+function render() {
+  $("gamePill").innerHTML = `Current game: <b>${esc(gameName(currentGame()))}</b>`;
+  if (tab === "playbook") renderPlaybook();
+  if (tab === "sheet") renderSheet();
+  if (tab === "log") renderLog();
+  if (tab === "backup") $("lastExport").textContent = db.lastExport ? `Last backup: ${new Date(db.lastExport).toLocaleString()}` : "No backup exported from this device yet.";
+}
+
+/* ---------- Events ---------- */
+document.querySelector("nav.tabs").onclick = e => { const b = e.target.closest("[data-tab]"); if (b) showTab(b.dataset.tab); };
+[["fQ", "q"], ["fSide", "side"], ["fType", "type"], ["fForm", "form"], ["fScheme", "scheme"], ["fPos", "pos"]].forEach(([id, k]) => {
+  $(id).addEventListener(id === "fQ" ? "input" : "change", e => { filt[k] = e.target.value; renderPlaybook(); });
+});
+document.querySelectorAll("[data-scope]").forEach(b => b.onclick = () => { logScope = b.dataset.scope; renderLog(); });
+$("gameSel").onchange = e => { if (e.target.value) { db.currentGame = e.target.value; persist(); render(); } };
+$("importFile").onchange = e => { if (e.target.files[0]) importBackup(e.target.files[0]); e.target.value = ""; };
+
+document.addEventListener("input", e => {
+  if (e.target.id === "eLabel" && ed) {
+    ed.label = e.target.value.trim().toUpperCase().slice(0, 3);
+    const s = ed.p.diagram.players.find(p => p.id === ed.sel);
+    if (s && ed.label && (ed.tool === "o" || ed.tool === "d")) { s.l = ed.label; renderEd(); }
+  }
+});
+
+document.addEventListener("click", e => {
+  const tb = e.target.closest("[data-tool]");
+  if (tb && ed) { ed.tool = tb.dataset.tool; if (ed.tool !== "route" && ed.tool !== "o" && ed.tool !== "d") ed.sel = null; return renderEd(); }
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const act = b.dataset.act, id = b.dataset.id, si = Number(b.dataset.si), pi = Number(b.dataset.pi);
+  switch (act) {
+    case "close": closeDlg(); break;
+    case "new-play": openEditor(null); break;
+    case "open-play": openPlay(id); break;
+    case "edit-play": openEditor(playById(id)); break;
+    case "dup-play": { const c = clone(playById(id)); c.id = uid(); c.name += " (copy)"; (c.diagram.players || []).forEach(p => p.id = uid()); db.plays.push(c); persist(); openEditor(c); break; }
+    case "del-play": {
+      const p = playById(id);
+      if (!confirm(`Delete ${p.name}? It comes off the call sheet too. Logged calls keep its name.`)) return;
+      db.plays = db.plays.filter(x => x.id !== id); db.sheet.forEach(s => s.plays = s.plays.filter(x => x !== id));
+      persist(); closeDlg(); render(); toast(`Deleted ${p.name}`); break;
+    }
+    case "clear-filters": Object.keys(filt).forEach(k => filt[k] = ""); $("fQ").value = ""; renderPlaybook(); break;
+    case "to-sheet": chooseSitFor(id); break;
+    case "log-call": openLog(id, b.dataset.sit); break;
+    case "log-save": saveLog(id, b.dataset.sit); break;
+    case "ed-form": snap(); ed.p.diagram.players = FORMATIONS[b.dataset.f](); ed.sel = null; if (!$("eForm").value) $("eForm").value = b.dataset.f; if (b.dataset.f.includes("4-")) $("eSide").value = "Defense"; renderEd(`Loaded ${b.dataset.f}. Pick Draw route to add routes.`); break;
+    case "ed-undo": if (ed.undo.length) { ed.p.diagram = ed.undo.pop(); ed.sel = null; renderEd("Undone."); } break;
+    case "ed-clear-route": { const s = ed.p.diagram.players.find(p => p.id === ed.sel); if (s) { snap(); s.r = []; renderEd(`Cleared ${s.l}'s route.`); } else renderEd("Select a player first."); break; }
+    case "ed-clear": snap(); ed.p.diagram.players = []; ed.sel = null; renderEd("Cleared. Undo brings it back."); break;
+    case "ed-add-row": readAssign(); ed.p.assignments.push({ pos: "", job: "" }); renderAssign(); document.querySelectorAll("#eAssign .ap").forEach((x, i, a) => i === a.length - 1 && x.focus()); break;
+    case "ed-del-row": readAssign(); ed.p.assignments.splice(Number(b.dataset.i), 1); renderAssign(); break;
+    case "ed-fill": { readAssign(); const have = new Set(ed.p.assignments.map(a => a.pos)); uniq(ed.p.diagram.players.map(p => p.l)).forEach(l => { if (!have.has(l)) ed.p.assignments.push({ pos: l, job: "" }); }); renderAssign(); break; }
+    case "ed-save": saveEditor(); break;
+    case "toggle-sheet-edit": sheetEdit = !sheetEdit; renderSheet(); break;
+    case "print": window.print(); break;
+    case "add-sit": { const n = prompt("Situation name (for example 4th & short)"); if (n && n.trim()) { db.sheet.push({ id: uid(), name: n.trim(), plays: [] }); persist(); renderSheet(); } break; }
+    case "sit-up": move(db.sheet, si, -1); persist(); renderSheet(); break;
+    case "sit-rename": { const n = prompt("Rename situation", db.sheet[si].name); if (n && n.trim()) { db.sheet[si].name = n.trim(); persist(); renderSheet(); } break; }
+    case "sit-del": if (confirm(`Remove ${db.sheet[si].name} from the call sheet? The plays stay in the playbook.`)) { db.sheet.splice(si, 1); persist(); renderSheet(); } break;
+    case "sit-add-play": pickPlayFor(si); break;
+    case "sp-up": move(db.sheet[si].plays, pi, -1); persist(); renderSheet(); break;
+    case "sp-down": move(db.sheet[si].plays, pi, 1); persist(); renderSheet(); break;
+    case "sp-del": db.sheet[si].plays.splice(pi, 1); persist(); renderSheet(); break;
+    case "pick": { const s = db.sheet[si]; if (!s.plays.includes(id)) s.plays.push(id); persist(); closeDlg(); render(); toast(`Added to ${s.name}`); break; }
+    case "new-game": editGame(null); break;
+    case "edit-game": { const g = currentGame(); if (g) editGame(g); else toast("No game yet."); break; }
+    case "delete-game": { const g = currentGame(); if (!g) return; if (!confirm(`Delete ${gameName(g)} and its ${g.calls.length} logged calls?`)) return; db.games = db.games.filter(x => x !== g); db.currentGame = db.games.length ? db.games[db.games.length - 1].id : null; persist(); render(); break; }
+    case "game-save": {
+      const opp = $("gOpp").value.trim(), date = $("gDate").value || today();
+      let g = db.games.find(x => x.id === id);
+      if (g) { g.opp = opp; g.date = date; } else { g = { id: uid(), opp, date, calls: [] }; db.games.push(g); }
+      db.currentGame = g.id; persist(); closeDlg(); render(); break;
+    }
+    case "del-call": { const g = currentGame(); if (g) { g.calls = g.calls.filter(c => c.id !== id); persist(); renderLog(); toast("Call removed"); } break; }
+    case "export": exportBackup(); break;
+    case "import": $("importFile").click(); break;
+    case "reset": if (confirm("Replace everything on this device with the example plays?")) { db = freshDB(); persist(); render(); toast("Reset to examples"); } break;
+    case "feedback": if (FEEDBACK_URL) openFeedback(); break;
+    case "fb-send": sendFeedback(); break;
+  }
+});
+
+setupFeedback();
+render();
+</script>
+</body>
+</html>
