@@ -259,7 +259,7 @@ footer { color: var(--muted); font-size: 0.85rem; display: flex; flex-wrap: wrap
 /* ---------- Settings ---------- */
 const STORE_KEY = "coachapp.v1";
 // Shared feedback API (AWS API Gateway + Lambda), used by this app and QB Cards. Empty = button shows "coming soon".
-const FEEDBACK_URL = "";
+const FEEDBACK_URL = "https://y2bnztejk2.execute-api.us-east-2.amazonaws.com/feedback";
 const APP_ID = "iceman-coaching-app";
 
 const SIDES = ["Offense", "Defense", "Special teams"];
@@ -766,11 +766,13 @@ function openFeedback() {
 }
 async function sendFeedback() {
   const msg = $("fbText").value.trim(); if (!msg) return toast("Write a note first.");
+  const btn = document.querySelector('[data-act="fb-send"]');
+  if (btn) { if (btn.disabled) return; btn.disabled = true; btn.textContent = "Sending..."; }
   try {
-    const r = await fetch(FEEDBACK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ app: APP_ID, message: msg, screen: tab, sent: new Date().toISOString() }) });
+    const r = await fetch(FEEDBACK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ app: APP_ID, message: msg.slice(0, 2000), screen: tab, sent: new Date().toISOString() }) });
     if (!r.ok) throw new Error(r.status);
     closeDlg(); toast("Thanks. Feedback sent.");
-  } catch (e) { toast("Couldn't send. Try again later."); }
+  } catch (e) { toast("Couldn't send. Try again later."); if (btn) { btn.disabled = false; btn.textContent = "Send"; } }
 }
 
 /* ---------- Render ---------- */
